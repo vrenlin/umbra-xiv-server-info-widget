@@ -32,7 +32,7 @@ This project follows the same structure as [Umbra.SamplePlugin](https://github.c
 
 Prerequisites:
 
-- .NET SDK 8.x or higher
+- .NET SDK 9.x or higher
 - Umbra installed through XIVLauncher/Dalamud (used to locate `Umbra.dll`, `Umbra.Common.dll`, `Umbra.Game.dll`)
 - Dalamud's dev hooks (installed automatically alongside FFXIV via XIVLauncher)
 
