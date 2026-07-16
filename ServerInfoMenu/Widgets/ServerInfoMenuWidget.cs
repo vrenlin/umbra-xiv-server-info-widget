@@ -132,8 +132,8 @@ public sealed partial class ServerInfoMenuWidget(
 
         button.IsVisible = entry.IsVisible;
         button.SortIndex = entry.SortIndex;
-        button.Label      = !string.IsNullOrEmpty(text) ? text : entry.Name;
-        button.AltText    = entry.IsInteractive ? "Click to interact" : string.Empty;
+        button.Label     = BuildLabel(entry.Name, text);
+        button.AltText   = string.Empty;
 
         button.Node.Tooltip = entry.TooltipText?.TextValue;
 
@@ -143,5 +143,16 @@ public sealed partial class ServerInfoMenuWidget(
         button.OnClick = entry.IsInteractive
             ? () => entry.InvokeClickAction(MouseClickType.Left, ClickModifierKeys.None)
             : null;
+    }
+
+    private string BuildLabel(string name, string? text)
+    {
+        if (string.IsNullOrEmpty(text)) return name;
+
+        if (!GetConfigValue<bool>(CvarNamePrefixLabelWithName)) return text;
+
+        string value = text.TrimStart(':', ' ').Trim();
+
+        return string.IsNullOrEmpty(value) ? name : $"{name} : {value}";
     }
 }
