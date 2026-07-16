@@ -5,6 +5,7 @@ on:
 
 env:
   SOLUTION_NAME: ServerInfoMenu
+  SOLUTION_DIR: ServerInfoMenu
   RELEASE_DIR: ServerInfoMenu/out/Release
 
 jobs:
@@ -34,15 +35,17 @@ jobs:
           Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\installedPlugins\Umbra\dist"
 
       - name: Restore solution
-        working-directory: ServerInfoMenu
+        working-directory: ${{ env.SOLUTION_DIR }}
         run: dotnet restore -r win ${{ env.SOLUTION_NAME }}.sln
 
       - name: Build solution
-        working-directory: ServerInfoMenu
-        run: dotnet build --configuration Release ${{ env.SOLUTION_NAME }}.sln
+        working-directory: ${{ env.SOLUTION_DIR }}
+        run: |
+          dotnet restore -r win ${{ env.SOLUTION_NAME }}.sln
+          dotnet build --configuration Release
 
       - name: Create plugin archive
-        run: Compress-Archive -Path ${{env.RELEASE_DIR}}\* -DestinationPath ${{env.RELEASE_DIR}}\${{env.SOLUTION_NAME}}.zip
+        run: Compress-Archive -Path ${{env.RELEASE_DIR}}/* -DestinationPath ${{env.RELEASE_DIR}}/${{env.SOLUTION_NAME}}.zip
 
       - name: Publish Plugin
         uses: softprops/action-gh-release@v2
