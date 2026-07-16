@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Dalamud.Game.Gui.Dtr;
-using Dalamud.Game.Text;
+using Dalamud.Interface;
 using Umbra.Common;
 using Umbra.Game;
 using Umbra.Widgets;
