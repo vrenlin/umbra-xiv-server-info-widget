@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Umbra.Widgets;
 
 namespace ServerInfoMenu.Widgets;
@@ -8,11 +10,21 @@ public sealed partial class ServerInfoMenuWidget
     private const string CvarNameHideNative          = "HideNative";
     private const string CvarNameCloseMenuOnClick    = "CloseMenuOnClick";
     private const string CvarNamePrefixLabelWithName = "PrefixLabelWithName";
+    private const string CvarNameKnownEntries        = "KnownEntryNames";
+    private const string CvarCategoryEntries         = "Server Bar Entries";
+    private const string CvarPrefixEntryEnabled      = "EntryEnabled::";
+    private const string CvarPrefixEntryPriority     = "EntryPriority::";
+
+    /// <summary>
+    /// Entry names are joined using this separator when persisted, since it
+    /// is not expected to ever appear within a DTR entry's name.
+    /// </summary>
+    private const char KnownEntryNamesSeparator = '\u001F';
 
     /// <inheritdoc/>
     protected override IEnumerable<IWidgetConfigVariable> GetConfigVariables()
     {
-        return [
+        List<IWidgetConfigVariable> variables = [
             // Always include the base variables when extending StandardToolbarWidget.
             ..base.GetConfigVariables(),
 
@@ -36,6 +48,45 @@ public sealed partial class ServerInfoMenuWidget
                 "Prefixes each menu entry's text with its name, e.g. \"Wrath Combo : On\" instead of just \": On\".",
                 true
             ) { Category = "Server Info Menu" },
+
+            new StringWidgetConfigVariable(CvarNameKnownEntries, "", null, "", 0) { IsHidden = true },
         ];
+
+        foreach (string name in _knownEntryNames.OrderBy(n => n, StringComparer.OrdinalIgnoreCase)) {
+            int defaultPriority = _knownEntryNames.IndexOf(name) * 10;
+
+            variables.Add(
+                new BooleanWidgetConfigVariable(
+                    EntryEnabledCvarName(name),
+                    "Show entry",
+                    $"Whether the \"{name}\" entry should be shown in the Server Info Menu popup.",
+                    true
+                ) { Category = CvarCategoryEntries, Group = name }
+            );
+
+            variables.Add(
+                new IntegerWidgetConfigVariable(
+                    EntryPriorityCvarName(name),
+                    "Priority",
+                    "Determines the sort order of this entry within the popup menu. Entries with a lower priority are shown first.",
+                    defaultPriority,
+                    0,
+                    9999
+                ) { Category = CvarCategoryEntries, Group = name }
+            );
+        }
+
+        return variables;
     }
+
+    private static string EntryEnabledCvarName(string name)  => CvarPrefixEntryEnabled + name;
+    private static string EntryPriorityCvarName(string name) => CvarPrefixEntryPriority + name;
+
+    private static string EncodeKnownEntryNames(IEnumerable<string> names) =>
+        string.Join(KnownEntryNamesSeparator, names);
+
+    private static List<string> DecodeKnownEntryNames(string? raw) =>
+        string.IsNullOrEmpty(raw)
+            ? []
+            : raw.Split(KnownEntryNamesSeparator).Where(n => n.Length > 0).ToList();
 }
