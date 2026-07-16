@@ -17,6 +17,9 @@ entry in the menu invokes the same click action it would if it were on the nativ
   clickable from within the menu.
 - Optionally hides the game's native Server Info Bar while the widget is active, since its contents are
   now reachable from the menu.
+- Menu entries are shown as plain text, without icons.
+- A **Server Bar Entries** tab in the widget's settings lists every entry seen so far, each with a
+  checkbox to show/hide it in the menu and a priority value to control its sort order.
 - Standard Umbra widget customization (icon, text, colors, sizing) via the widget's settings panel.
 
 ## Installation (for users)

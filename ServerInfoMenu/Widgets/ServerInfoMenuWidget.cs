@@ -42,9 +42,18 @@ public sealed partial class ServerInfoMenuWidget(
 
     private readonly Dictionary<string, MenuPopup.Button> _buttons = [];
 
+    private List<string> _knownEntryNames = [];
+
     /// <inheritdoc/>
     protected override void OnLoad()
     {
+        _knownEntryNames = DecodeKnownEntryNames(GetConfigValue<string>(CvarNameKnownEntries));
+
+        // The config variables for previously-known entries need to be
+        // (re-)registered now, since the first pass during Setup() ran
+        // before the persisted list of known entry names was loaded above.
+        if (_knownEntryNames.Count > 0) UpdateConfigVariables();
+
         _repository = Framework.Service<IDtrBarEntryRepository>();
 
         _repository.OnEntryAdded   += OnEntryAdded;
@@ -72,7 +81,7 @@ public sealed partial class ServerInfoMenuWidget(
 
             ApplyEntryToButton(entry, button);
 
-            if (entry.IsVisible) visibleCount++;
+            if (button.IsVisible) visibleCount++;
         }
 
         SetSubText(visibleCount == 1 ? "1 entry" : $"{visibleCount} entries");
@@ -102,6 +111,11 @@ public sealed partial class ServerInfoMenuWidget(
 
         var button = new MenuPopup.Button(entry.Name);
 
+        // This widget never assigns an icon to menu buttons, but the icon
+        // column still reserves its own width and gap in the layout unless
+        // explicitly hidden, so hide it to keep entries icon-free.
+        button.Node.QuerySelector(".icon")!.Style.IsVisible = false;
+
         ApplyEntryToButton(entry, button);
 
         _buttons.Add(entry.Name, button);
@@ -128,10 +142,12 @@ public sealed partial class ServerInfoMenuWidget(
 
     private void ApplyEntryToButton(DtrBarEntry entry, MenuPopup.Button button)
     {
+        RegisterKnownEntryName(entry.Name);
+
         string? text = entry.Text?.TextValue;
 
-        button.IsVisible = entry.IsVisible;
-        button.SortIndex = entry.SortIndex;
+        button.IsVisible = entry.IsVisible && GetConfigValue<bool>(EntryEnabledCvarName(entry.Name));
+        button.SortIndex = GetConfigValue<int>(EntryPriorityCvarName(entry.Name));
         button.Label     = BuildLabel(entry.Name, text);
         button.AltText   = string.Empty;
 
@@ -154,5 +170,21 @@ public sealed partial class ServerInfoMenuWidget(
         string value = text.TrimStart(':', ' ').Trim();
 
         return string.IsNullOrEmpty(value) ? name : $"{name} : {value}";
+    }
+
+    /// <summary>
+    /// Remembers the given entry name so that it shows up as a configurable
+    /// entry under the "Server Bar Entries" tab, even after the plugin that
+    /// owns it is unloaded. Registers the per-entry config variables and
+    /// persists the updated list of known entry names.
+    /// </summary>
+    private void RegisterKnownEntryName(string name)
+    {
+        if (_knownEntryNames.Contains(name)) return;
+
+        _knownEntryNames.Add(name);
+
+        UpdateConfigVariables();
+        SetConfigValue(CvarNameKnownEntries, EncodeKnownEntryNames(_knownEntryNames));
     }
 }
