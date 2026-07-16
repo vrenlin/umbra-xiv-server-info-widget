@@ -37,21 +37,19 @@ Prerequisites:
 - Dalamud's dev hooks (installed automatically alongside FFXIV via XIVLauncher)
 
 ```
-cd ServerInfoMenu
-dotnet build --configuration Release
+dotnet build --configuration Release ServerInfoMenu.sln
 ```
 
-The built plugin will be placed in `ServerInfoMenu/out/Release`.
+The built plugin will be placed in `out/Release`.
 
 ## Project layout
 
 ```
+ServerInfoMenu.sln
 ServerInfoMenu/
-  ServerInfoMenu.sln
-  ServerInfoMenu/
-    ServerInfoMenu.csproj
-    Widgets/
-      ServerInfoMenuWidget.cs         # Core widget: menu population, entry sync
-      ServerInfoMenuWidget.Config.cs  # User-configurable options
-      ServerInfoMenuWidget.NativeBar.cs # Hides/restores the native Server Info Bar
+  ServerInfoMenu.csproj
+  Widgets/
+    ServerInfoMenuWidget.cs           # Core widget: menu population, entry sync
+    ServerInfoMenuWidget.Config.cs    # User-configurable options
+    ServerInfoMenuWidget.NativeBar.cs # Hides/restores the native Server Info Bar
 ```

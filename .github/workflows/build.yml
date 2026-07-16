@@ -5,8 +5,7 @@ on:
 
 env:
   SOLUTION_NAME: ServerInfoMenu
-  SOLUTION_DIR: ServerInfoMenu
-  RELEASE_DIR: ServerInfoMenu/out/Release
+  RELEASE_DIR: out/Release
 
 jobs:
   Build:
@@ -35,11 +34,9 @@ jobs:
           Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\installedPlugins\Umbra\dist"
 
       - name: Restore solution
-        working-directory: ${{ env.SOLUTION_DIR }}
         run: dotnet restore -r win ${{ env.SOLUTION_NAME }}.sln
 
       - name: Build solution
-        working-directory: ${{ env.SOLUTION_DIR }}
         run: |
           dotnet restore -r win ${{ env.SOLUTION_NAME }}.sln
           dotnet build --configuration Release
