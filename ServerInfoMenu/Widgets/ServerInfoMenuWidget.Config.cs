@@ -20,7 +20,7 @@ public sealed partial class ServerInfoMenuWidget
                 CvarNameHideNative,
                 "Hide native Server Info Bar",
                 "Hides the game's native Server Info Bar (DTR bar) while this widget is active, since its entries are now available from this widget's menu.",
-                true
+                false
             ) { Category = "Server Info Menu" },
 
             new BooleanWidgetConfigVariable(
